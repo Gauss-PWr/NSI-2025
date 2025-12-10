@@ -23,9 +23,9 @@ class Player(pygame.sprite.Sprite):
         ).convert_alpha()
         self.image_dead = pygame.transform.rotozoom(self.image_dead, 0, scale)
         self.image_dead = pygame.transform.flip(self.image_dead, True, False)
-        self.collision_sound = mixer.Sound("aduio\wall_collision.mp3")
-        self.death_sound = mixer.Sound("aduio\game_over.mp3")
-        self.jump_sound = mixer.Sound("aduio\jump.mp3")
+        self.collision_sound = mixer.Sound("aduio/wall_collision.mp3")
+        self.death_sound = mixer.Sound("aduio/game_over.mp3")
+        self.jump_sound = mixer.Sound("aduio/jump.mp3")
         self.images = [self.image_0, self.image_1, self.image_dead]
         self.image = self.image_0
         self.rect: pygame.Rect = self.image.get_rect()

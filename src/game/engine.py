@@ -2,6 +2,7 @@ import os
 import pygame
 import random
 import sys
+from solution import calculate_reward
 
 class MockSound:
     def play(self): pass
@@ -139,11 +140,6 @@ class GameEngine:
         return self.get_state_dict()
 
     def step(self, action):
-        
-        # NOTE: 
-        # You can customize your reward structure here :D
-        
-        
         if self.game_over:
             return self.get_state_dict(), 0, True, {}
 
@@ -151,33 +147,44 @@ class GameEngine:
             self.player.jump()
 
         wall_hit = self.player.check_wall_collision() 
-        reward = 0.1
-        
+
+        game_state = {
+            'wall_hit': wall_hit,
+            'spike_collision': False,
+            'coins_collected': 0,
+            'score': self.score
+        }
+
         if wall_hit != 0:
             self.player.after_collision()
             self.score += 1
-            reward += 1.0
             self.generate_coins()
             
             e_spikes, w_spikes = self.generate_spikes(self.score)
             self.east_spikes = e_spikes
             self.west_spikes = w_spikes
 
+         # Kolizja z kolcami
         active_spikes = self.floor_spikes + self.ceiling_spikes + self.east_spikes + self.west_spikes
         for spike in active_spikes:
             if spike.rect.colliderect(self.player.rect):
                 self.player.death()
                 self.game_over = True
-                reward = -10.0
+                game_state['spike_collision'] = True
+                reward = calculate_reward(game_state)
                 return self.get_state_dict(), reward, True, {}
 
+        # Zbieranie monet
         for coin in self.coin_list[:]:
             if coin.rect.colliderect(self.player.rect):
                 self.coin_list.remove(coin)
                 self.coin_total += 1
-                reward += 0.5
+                game_state['coins_collected'] += 1
 
         self.player.update()
+        
+        # Nagroda z funkcji nagrody uczestnika
+        reward = calculate_reward(game_state)
         
         return self.get_state_dict(), reward, False, {}
 

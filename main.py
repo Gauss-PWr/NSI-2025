@@ -13,7 +13,7 @@ class Bot:
         return action, None
 
 if __name__ == "__main__":
-    from bot import train_bot, load_bot
+    from solution import train_bot, load_bot
     
     train = False
     if train:

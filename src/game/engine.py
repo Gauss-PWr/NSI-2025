@@ -145,7 +145,9 @@ class GameEngine:
 
         if action == 1:
             self.player.jump()
-
+        
+        self.player.update()
+        
         wall_hit = self.player.check_wall_collision() 
 
         game_state = {
@@ -181,7 +183,6 @@ class GameEngine:
                 self.coin_total += 1
                 game_state['coins_collected'] += 1
 
-        self.player.update()
         
         # Nagroda z funkcji nagrody uczestnika
         reward = calculate_reward(game_state)

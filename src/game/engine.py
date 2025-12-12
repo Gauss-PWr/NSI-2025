@@ -172,12 +172,7 @@ class GameEngine:
 
         wall_hit = self.player.check_wall_collision()
 
-        game_state = {
-            "wall_hit": wall_hit,
-            "spike_collision": False,
-            "coins_collected": 0,
-            "score": self.score,
-        }
+        game_state = self.get_state_dict()
 
         if wall_hit != 0:
             self.player.after_collision()
@@ -199,8 +194,7 @@ class GameEngine:
             if spike.rect.colliderect(self.player.rect):
                 self.player.death()
                 self.game_over = True
-                game_state["spike_collision"] = True
-                reward = self.bot.calculate_reward(game_state) if self.bot else 0
+                reward = self.bot.calculate_reward(game_state)
                 return self.get_state_dict(), reward, True, {}
 
         # Zbieranie monet
@@ -208,10 +202,9 @@ class GameEngine:
             if coin.rect.colliderect(self.player.rect):
                 self.coin_list.remove(coin)
                 self.coin_total += 1
-                game_state["coins_collected"] += 1
 
         # Nagroda z funkcji nagrody uczestnika
-        reward = self.bot.calculate_reward(game_state) if self.bot else 0
+        reward = self.bot.calculate_reward(game_state)
 
         return self.get_state_dict(), reward, False, {}
 
@@ -268,25 +261,3 @@ class GameEngine:
 
         pygame.display.update()
         self.clock.tick(self.fps)
-
-    def run(self):
-        self.reset_game()
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return self.score
-                if not self.bot and event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        self.player.jump()
-
-            action = 0
-            if self.bot and not self.game_over:
-                state = self.get_state_dict()
-                action, _ = self.bot.take_action(state)
-
-            _, _, done, _ = self.step(action)
-            self.render_frame()
-
-            if done:
-                return self.score

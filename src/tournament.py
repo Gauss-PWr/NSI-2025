@@ -5,7 +5,8 @@ import pygame
 from src.env import GameEnv
 
 class Tournament:
-    def __init__(self, bot):
+    def __init__(self, calculate_reward, bot=None):
+        self.calculate_reward = calculate_reward
         self.bot = bot
         self.results = []
 
@@ -20,7 +21,7 @@ class Tournament:
         if not self.bot: return
 
         self._setup_headless()
-        env = GameEnv(bot=self.bot, render_mode='headless')
+        env = GameEnv(calculate_reward=self.calculate_reward, render_mode='headless')
         
         print(f"Starting Benchmark over {episodes} episodes...")
         scores = []
@@ -61,7 +62,7 @@ class Tournament:
         self._clear_headless()
         pygame.quit() 
         
-        env = GameEnv(render_mode='human')
+        env = GameEnv(calculate_reward=self.calculate_reward, render_mode='human')
         obs, _ = env.reset()
         
         running = True

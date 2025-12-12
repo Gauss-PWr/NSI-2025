@@ -26,10 +26,29 @@ def load_participant_bot():
         print(f"Szczegóły: {e}")
         print("Utwórz funkcję create_bot() która zwraca instancję Twojej klasy bota.")
         sys.exit(1)
-    except Exception as e:
-        print(f"BŁĄD podczas ładowania bota: {e}")
+    # except Exception as e:
+    #     print(f"BŁĄD podczas ładowania bota: {e}")
+    #     sys.exit(1)
+def load_calculate_reward():
+    """
+    Ładuje funkcję calculate_reward z pliku solution.py.
+    """
+    try:
+        from solution import calculate_reward
+        if not callable(calculate_reward):
+            raise TypeError("calculate_reward musi być funkcją.")
+        
+        print(f"Funkcja calculate_reward załadowana.")
+        return calculate_reward
+    except ImportError as e:
+        print(f"BŁĄD: Nie znaleziono funkcji 'calculate_reward()' w solution.py")
+        print(f"Szczegóły: {e}")
+        print("Utwórz funkcję calculate_reward(game_state: dict) która zwraca wartość nagrody (float).")
         sys.exit(1)
-
+    # except Exception as e:
+    #     print(f"BŁĄD podczas ładowania funkcji calculate_reward: {e}")
+    #     sys.exit(1)
+    
 if __name__ == "__main__":
     try:
         # Załaduj bota uczestnika
@@ -45,7 +64,8 @@ if __name__ == "__main__":
         except ImportError:
             WATCH_GAME = True        
         # Uruchom turniej
-        tournament = Tournament(participant_bot)
+        calculate_reward = load_calculate_reward()
+        tournament = Tournament(calculate_reward, participant_bot)
         tournament.run_benchmark(episodes=BENCHMARK_EPISODES)
         
         if WATCH_GAME:

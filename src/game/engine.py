@@ -24,10 +24,11 @@ class MockMixer:
 
 
 class GameEngine:
-    def __init__(self, headless=False, bot=None):
+    def __init__(self, headless=False, calculate_reward=None):
         self.headless = headless
-        self.bot = bot
-
+        self.calculate_reward = calculate_reward
+        if calculate_reward is None:
+            raise ValueError("calculate_reward function must be provided to GameEngine")
         if self.headless:
             os.environ["SDL_VIDEODRIVER"] = "dummy"
             sys.modules["pygame.mixer"] = MockMixer()
@@ -194,7 +195,7 @@ class GameEngine:
             if spike.rect.colliderect(self.player.rect):
                 self.player.death()
                 self.game_over = True
-                reward = self.bot.calculate_reward(game_state)
+                reward = self.calculate_reward(game_state)
                 return self.get_state_dict(), reward, True, {}
 
         # Zbieranie monet
@@ -204,7 +205,7 @@ class GameEngine:
                 self.coin_total += 1
 
         # Nagroda z funkcji nagrody uczestnika
-        reward = self.bot.calculate_reward(game_state)
+        reward = self.calculate_reward(game_state)
 
         return self.get_state_dict(), reward, False, {}
 

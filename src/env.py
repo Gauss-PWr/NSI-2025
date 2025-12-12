@@ -6,11 +6,11 @@ from src.game.engine import GameEngine
 class GameEnv(gym.Env):
     metadata = {'render_modes': ['human', 'headless']}
 
-    def __init__(self, bot=None, render_mode='headless'):
+    def __init__(self, calculate_reward=None, render_mode='headless'):
         super(GameEnv, self).__init__()
         self.headless = (render_mode == 'headless')
-        self.bot = bot
-        self.game = GameEngine(headless=self.headless, bot=self.bot)
+        self.calculate_reward = calculate_reward if calculate_reward is not None else lambda x : 0
+        self.game = GameEngine(headless=self.headless, calculate_reward=self.calculate_reward)
         self.action_space = spaces.Discrete(2)
         
         self.max_coins = 1

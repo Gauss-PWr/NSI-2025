@@ -2,7 +2,6 @@ import os
 import pygame
 import random
 import sys
-from example_solution import calculate_reward
 
 
 class MockSound:
@@ -201,7 +200,7 @@ class GameEngine:
                 self.player.death()
                 self.game_over = True
                 game_state["spike_collision"] = True
-                reward = calculate_reward(game_state)
+                reward = self.bot.calculate_reward(game_state) if self.bot else 0
                 return self.get_state_dict(), reward, True, {}
 
         # Zbieranie monet
@@ -212,7 +211,7 @@ class GameEngine:
                 game_state["coins_collected"] += 1
 
         # Nagroda z funkcji nagrody uczestnika
-        reward = calculate_reward(game_state)
+        reward = self.bot.calculate_reward(game_state) if self.bot else 0
 
         return self.get_state_dict(), reward, False, {}
 
@@ -274,8 +273,7 @@ class GameEngine:
             action = 0
             if self.bot and not self.game_over:
                 state = self.get_state_dict()
-                if self.bot.act(state):
-                    action = 1
+                action, _ = self.bot.take_action(state)
 
             _, _, done, _ = self.step(action)
             self.render_frame()

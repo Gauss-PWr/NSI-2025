@@ -20,7 +20,7 @@ class Tournament:
         if not self.bot: return
 
         self._setup_headless()
-        env = GameEnv(render_mode='headless')
+        env = GameEnv(bot=self.bot, render_mode='headless')
         
         print(f"Starting Benchmark over {episodes} episodes...")
         scores = []

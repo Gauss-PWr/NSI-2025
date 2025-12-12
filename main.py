@@ -37,11 +37,13 @@ if __name__ == "__main__":
         
         # Wczytaj opcjonalne ustawienia turnieju
         try:
-            from solution import BENCHMARK_EPISODES, WATCH_GAME
+            from solution import BENCHMARK_EPISODES
         except ImportError:
             BENCHMARK_EPISODES = 50
-            WATCH_GAME = True
-        
+        try:
+            from solution import WATCH_GAME
+        except ImportError:
+            WATCH_GAME = True        
         # Uruchom turniej
         tournament = Tournament(participant_bot)
         tournament.run_benchmark(episodes=BENCHMARK_EPISODES)

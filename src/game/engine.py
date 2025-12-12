@@ -217,16 +217,21 @@ class GameEngine:
 
     def get_state_dict(self):
         return {
-            "player_pos": self.player.rect,
+            "player_pos_x": self.player.rect.x,
+            "player_pos_y": self.player.rect.y,
+            "player_direction": 1 if self.player.velocity > 0 else -1,
             "player_gravity": self.player.gravity,
-            "spikes": [
-                s.rect
+            "spikes_pos_y": [
+                s.rect.y
                 for s in (
                     self.east_spikes if self.player.gravity > 0 else self.west_spikes
                 )
             ],
-            "coins": [c.rect for c in self.coin_list],
+            "coin_x": self.coin_list[0].rect.x if self.coin_list else -1,
+            "coin_y": self.coin_list[0].rect.y if self.coin_list else -1,
             "score": self.score,
+            "collected_coins": self.coin_total,
+            "player_dead": self.player.dead,
         }
 
     def render_frame(self):

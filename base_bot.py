@@ -8,7 +8,7 @@ class BaseBot(ABC):
     """
     
     @abstractmethod
-    def take_action(self, game_state) -> tuple[int, dict]:
+    def take_action(self, obs) -> tuple[int, dict]:
         """
         Funkcja przyjmuje stan gry i zwraca akcję + dodatkowe info [może być puste]).
         """
@@ -18,19 +18,15 @@ class BaseBot(ABC):
         """
         Zdefiniuj funkcję nagrody dla bota na podstawie stanu gry.
         """
-        reward = 0
-
-        # Nagroda za odbicie się od ściany
-        if game_state.get("wall_hit", 0) != 0:
-            reward += 1.0
+        reward = 0.1
 
         # Kara za śmierć
-        if game_state.get("spike_collision", False):
+        if game_state.get("player_dead", False):
             reward = -10.0
             return reward
             
         # Nagroda za monety
-        coins_collected = game_state.get("coins_collected", 0)
+        coins_collected = game_state.get("collected_coins", 0)
         reward += coins_collected * 0.5
 
         return reward

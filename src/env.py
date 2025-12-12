@@ -16,11 +16,7 @@ class GameEnv(gym.Env):
         self.max_coins = 1
         self.max_spikes = 9 
         
-        # Obs Vector Structure:
-        # 1. Player: [X, Y, Y-Vel, X-Vel] (4 floats)
-        # 2. Coin: [X, Y] (2 floats)
-        # 3. Spikes: [Y, Y, Y...] (10 floats - only Y pos of target wall)
-        obs_size = 4 + (self.max_coins * 2) + (self.max_spikes * 1)
+        obs_size = 15 
         
         low = np.full((obs_size,), -float('inf'), dtype=np.float32)
         high = np.full((obs_size,), float('inf'), dtype=np.float32)
@@ -52,7 +48,7 @@ class GameEnv(gym.Env):
     def _get_obs(self):
         p = self.game.player
         
-        player_data = [float(p.rect.x), float(p.rect.y), float(p.gravity), float(p.velocity)]
+        player_data = [float(p.rect.x), float(p.rect.y),  1 if float(p.velocity) > 0 else -1, float(p.gravity)]
         
         coin_data = []
         if self.game.coin_list:
@@ -78,4 +74,5 @@ class GameEnv(gym.Env):
             spike_data.extend([-1.0] * padding)
 
         obs = np.array(player_data + coin_data + spike_data, dtype=np.float32)
+
         return obs

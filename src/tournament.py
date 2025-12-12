@@ -32,7 +32,7 @@ class Tournament:
             current_score = 0
             
             while not done:
-                action, _ = self.bot.take_action(obs)
+                action = self.bot.take_action(obs)
                 obs, reward, done, _, info = env.step(action)
                 
                 # We can track the actual game score if exposed in info or calculate from engine
@@ -70,7 +70,7 @@ class Tournament:
                 if event.type == pygame.QUIT:
                     running = False
 
-            action, _ = self.bot.take_action(obs)
+            action = self.bot.take_action(obs)
             obs, _, done, _, _ = env.step(action)
             
             if done:

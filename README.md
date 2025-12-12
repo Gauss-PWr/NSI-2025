@@ -215,8 +215,237 @@ gdzie $score$ to liczba odbić od ściany.
 
 ## 5. WYMAGANIA TECHNICZNE
 
-TBA [requirements.txt i uv]
+Wszyskie potrzebne paczki są zawarte w `requirements.txt`. Upewnij się, że masz zainstalowane:
+- Python 3.8+
+- `numpy`
+- `gymnasium`
+- `pygame`
 
 ## 6. METRYKI OCENY
+Wydajność modelu jest zadana następująco:
+$$\text{performance}_i = collected\_coins_i + score_i$$
+$$\text{performance} = \frac{1}{N}\sum_{i=1}^{N} \text{performance}_i$$
 
-TBA
+gdzie $N$ to liczba epizodów w benchmarku, $collected\_coins_i$ to liczba monet zebranych w epizodzie $i$, a $score_i$ to liczba odbić od ściany w epizodzie $i$. Dla każdej implementacji i-ty epizod bedzie używał tego samego ziarna losowego.
+
+---
+
+## 7. PRZYKŁADOWE IMPLEMENTACJE W `solution.py`
+
+Poniżej przedstawiamy przykładowe implementacje botów, które możecie wykorzystać jako punkt startowy. Pamiętajcie, że waszym celem jest stworzenie bota, który osiągnie jak najwyższy wynik!
+
+### A. Bot Heurystyczny 
+
+Ten bot podejmuje decyzję o skoku na podstawie prostej heurystyki: skacze, gdy znajduje się poniżej określonego progu Y.
+
+```python
+from base_bot import BaseBot
+import numpy as np
+from typing import Dict, Any
+
+# Opcjonalne stałe konfiguracyjne
+BENCHMARK_EPISODES = 10  # Mniejsza liczba dla szybszego testu
+WATCH_GAME = True  # Wizualizacja gry
+
+# --- Implementacja Bota ---
+
+class SimpleHeuristicBot(BaseBot):
+    """
+    Bot, który skacze, gdy jest zbyt nisko.
+    """
+    def __init__(self, jump_y_threshold: float = 500.0):
+        # Przykładowy próg Y. Wartość 500.0 jest testowa dla user_y=704
+        self.jump_y_threshold = jump_y_threshold 
+
+    def take_action(self, obs: np.ndarray) -> int:
+        """
+        Indeksy obserwacji:
+        0: p_x (położenie X gracza)
+        1: p_y (położenie Y gracza)
+        ...
+        """
+        player_y = obs[1]
+        
+        if player_y > self.jump_y_threshold:
+            return 1  # Skocz
+        else:
+            return 0  # Nie skacz
+
+def create_bot() -> BaseBot:
+    """
+    Fabryka dla bota.
+    """
+    return SimpleHeuristicBot() 
+
+# --- Implementacja Nagrody (Wymagana dla RL, opcjonalna dla heurystyki, ale musi istnieć) ---
+
+def calculate_reward(game_state: Dict[str, Any]) -> float:
+    """
+    Funkcja nagrody (Reward Function).
+    """
+    reward = 0.0
+
+    # 1. Nagroda za przetrwanie (za każdy krok)
+    reward += 0.1 
+
+    # 2. Kara za śmierć
+    if game_state["player_dead"]:
+        reward -= 10.0
+    
+    return reward
+```
+
+### B. Bot z Uproszczonym Q-Learningiem (Epsilon-Greedy)
+
+**Ostrzeżenie:** Używa słownika jako Q-tabeli i zgrubnego podziału planszy (co 50px). Nie będzie działał dobrze bez długiego treningu. Wprowadza strategię $\epsilon$-greedy ($\epsilon=0.1$) i minimalistyczną funkcję `learn`.
+
+```python
+from base_bot import BaseBot
+import numpy as np
+from typing import Dict, Any
+
+class SimpleEpsilonQLearningBot(BaseBot):
+    def __init__(self):
+        self.q_table = {} 
+        self.last_state = None
+        self.last_action = None
+        self.lr = 0.1
+        self.gamma = 0.99
+        self.epsilon = 0.1 # Współczynnik eksploracji
+
+    def take_action(self, obs: np.ndarray) -> int:
+        # Stan: (sektor X, sektor Y) - dyskretyzacja
+        state = (int(obs[0] // 50), int(obs[1] // 50))
+
+        if state not in self.q_table:
+            self.q_table[state] = [0.0, 0.0]
+
+        if np.random.random() < self.epsilon:
+            action = np.random.choice([0, 1]) # Eksploracja
+        else:
+            action = int(np.argmax(self.q_table[state])) # Eksploatacja
+        
+        self.last_state = state
+        self.last_action = action
+        
+        return action
+        
+    def learn(self, next_obs: np.ndarray, reward: float, done: bool):
+        """Uproszczona funkcja nauki (poza cyklem turniejowym)"""
+        if self.last_state is None: return
+        
+        state = self.last_state
+        action = self.last_action
+        
+        # Wyznaczanie stanu następnego
+        next_state = (int(next_obs[0] // 50), int(next_obs[1] // 50))
+        if next_state not in self.q_table:
+            self.q_table[next_state] = [0.0, 0.0]
+
+        old_q = self.q_table[state][action]
+        max_next_q = 0 if done else np.max(self.q_table[next_state])
+        
+        # Wzór Q-learningu: Q(s,a) = Q(s,a) + alpha * (R + gamma * max(Q(s',a')) - Q(s,a))
+        new_q = old_q + self.lr * (reward + self.gamma * max_next_q - old_q)
+        self.q_table[state][action] = new_q
+
+def create_bot() -> BaseBot:
+    return SimpleEpsilonQLearningBot()
+
+def calculate_reward(game_state: Dict[str, Any]) -> float:
+    return -10.0 if game_state["player_dead"] else 0.1
+ ```
+
+### C. Bot typu REINFORCE (Policy Gradient - PyTorch)
+
+Wykorzystuje minimalną sieć neuronową w PyTorch. 
+
+```python
+from base_bot import BaseBot
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from typing import Dict, Any
+# Wymaga GameEnv
+from src.env import GameEnv 
+
+class PolicyNet(nn.Module):
+    def __init__(self, input_size=15, hidden_size=64, output_size=2):
+        super(PolicyNet, self).__init__()
+        self.net = nn.Sequential(nn.Linear(input_size, hidden_size), nn.ReLU(),
+                                 nn.Linear(hidden_size, output_size), nn.Softmax(dim=-1))
+    def forward(self, x):
+        return self.net(x)
+
+class ReinforceTorchBot(BaseBot):
+    def __init__(self):
+        self.policy_net = PolicyNet()
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=0.01)
+        self.log_probs = []
+        self.rewards = []
+        self.gamma = 0.99
+
+    def take_action(self, obs: np.ndarray) -> int:
+        x_np = np.zeros(15, dtype=np.float32); x_np[:len(obs)] = obs
+        state_tensor = torch.from_numpy(x_np).float()
+        
+        probs = self.policy_net(state_tensor)
+        action_dist = torch.distributions.Categorical(probs)
+        action = action_dist.sample()
+        
+        self.log_probs.append(action_dist.log_prob(action))
+        return action.item()
+
+    def train(self):
+        """Aktualizacja wag sieci na podstawie zebranych nagród (REINFORCE)."""
+        R = 0; returns = []
+        for r in self.rewards[::-1]:
+            R = r + self.gamma * R
+            returns.insert(0, R)
+        
+        returns = torch.tensor(returns); 
+        returns = (returns - returns.mean()) / (returns.std() + 1e-8)
+
+        policy_loss = [-log_prob * R for log_prob, R in zip(self.log_probs, returns)]
+            
+        self.optimizer.zero_grad()
+        loss = torch.cat(policy_loss).sum()
+        loss.backward()
+        self.optimizer.step()
+        
+        self.log_probs = []; self.rewards = []
+        return loss.item()
+
+def create_bot() -> BaseBot:
+    return ReinforceTorchBot()
+
+def calculate_reward(game_state: Dict[str, Any]) -> float:
+    return -10.0 if game_state["player_dead"] else 0.1
+
+def train_bot(episodes: int = 500):
+    """Przykładowa pętla treningowa REINFORCE."""
+    bot = create_bot()
+    env = GameEnv(calculate_reward=calculate_reward, render_mode="headless") 
+
+    for i in range(episodes):
+        obs, _ = env.reset()
+        done = False
+        episode_reward = 0
+        
+        while not done:
+            action = bot.take_action(obs)
+            obs, reward, done, _, info = env.step(action)
+            
+            bot.rewards.append(reward)
+            episode_reward += reward
+
+        loss = bot.train()
+        if (i + 1) % 50 == 0:
+             print(f"Episode {i+1}/{episodes}, Reward: {episode_reward:.2f}, Loss: {loss:.4f}")
+    env.close()
+
+# Poniższe wywołanie w main.py pozwoli na trening bota
+# if __name__ == "__main__":
+#     train_bot(episodes=5000)
+```

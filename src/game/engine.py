@@ -232,6 +232,11 @@ class GameEngine:
             "score": self.score,
             "collected_coins": self.coin_total,
             "player_dead": self.player.dead,
+            "right_wall_pos": self.user_x,
+            "left_wall_pos": 0,
+            "floor_pos": self.user_y,
+            "ceiling_pos": 0,
+            
         }
 
     def render_frame(self):

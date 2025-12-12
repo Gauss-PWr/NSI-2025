@@ -8,9 +8,9 @@ class BaseBot(ABC):
     """
     
     @abstractmethod
-    def take_action(self, obs) -> tuple[int, dict]:
+    def take_action(self, obs) -> int:
         """
-        Funkcja przyjmuje stan gry i zwraca akcję + dodatkowe info [może być puste]).
+        Funkcja przyjmuje stan gry i zwraca akcję ).
         """
         raise NotImplementedError
 
@@ -22,8 +22,7 @@ class BaseBot(ABC):
 
         # Kara za śmierć
         if game_state.get("player_dead", False):
-            reward = -10.0
-            return reward
+            reward += -10.0
             
         # Nagroda za monety
         coins_collected = game_state.get("collected_coins", 0)

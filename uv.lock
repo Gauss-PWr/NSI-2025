@@ -394,6 +394,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "gymnasium" },
+    { name = "numpy" },
     { name = "pygame" },
     { name = "stable-baselines3" },
 ]
@@ -401,6 +402,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "gymnasium", specifier = ">=1.2.2" },
+    { name = "numpy", specifier = ">=2.3.5" },
     { name = "pygame", specifier = ">=2.6.1" },
     { name = "stable-baselines3", specifier = ">=2.7.1" },
 ]

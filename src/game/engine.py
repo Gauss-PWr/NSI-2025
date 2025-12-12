@@ -24,11 +24,8 @@ class MockMixer:
 
 
 class GameEngine:
-    def __init__(self, headless=False, calculate_reward=None):
+    def __init__(self, headless=False):
         self.headless = headless
-        self.calculate_reward = calculate_reward
-        if calculate_reward is None:
-            raise ValueError("calculate_reward function must be provided to GameEngine")
         if self.headless:
             os.environ["SDL_VIDEODRIVER"] = "dummy"
             sys.modules["pygame.mixer"] = MockMixer()
@@ -167,8 +164,6 @@ class GameEngine:
 
         wall_hit = self.player.check_wall_collision()
 
-        game_state = self.get_state_dict()
-
         if wall_hit != 0:
             self.player.after_collision()
             self.score += 1
@@ -189,19 +184,17 @@ class GameEngine:
             if spike.rect.colliderect(self.player.rect):
                 self.player.death()
                 self.game_over = True
-                reward = self.calculate_reward(game_state)
-                return self.get_state_dict(), reward, True, {}
+                return self.get_state_dict(), True, {}
 
         # Zbieranie monet
-        for coin in self.coin_list[:]:
+        for coin in self.coin_list:
             if coin.rect.colliderect(self.player.rect):
                 self.coin_list.remove(coin)
                 self.coin_total += 1
 
         # Nagroda z funkcji nagrody uczestnika
-        reward = self.calculate_reward(game_state)
 
-        return self.get_state_dict(), reward, False, {}
+        return self.get_state_dict(), False, {}
 
     def get_state_dict(self):
         return {
@@ -224,7 +217,6 @@ class GameEngine:
             "left_wall_pos": 0,
             "floor_pos": self.user_y,
             "ceiling_pos": 0,
-            
         }
 
     def render_frame(self):

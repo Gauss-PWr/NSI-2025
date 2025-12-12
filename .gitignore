@@ -7,8 +7,9 @@ __pycache__/
 *.so
 
 # You aint looking at my solutions ;)
-bot.py
+solution.py
 bot.zip
+ppo_spike_bot_v2.zip
 
 # Distribution / packaging
 .Python

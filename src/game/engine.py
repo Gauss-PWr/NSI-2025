@@ -91,13 +91,12 @@ class GameEngine:
 
     def generate_coins(self):
         if len(self.coin_list) < 1:
-            if random.randint(0, 100) < 30:
-                coin = self.Coin(self.scale)
-                coin.set_position(
-                    random.randint(40 * self.scale, self.user_x - 40 * self.scale),
-                    random.randint(40 * self.scale, self.user_y - 40 * self.scale),
-                )
-                self.coin_list.append(coin)
+            coin = self.Coin(self.scale)
+            coin.set_position(
+                random.randint(40 * self.scale, self.user_x - 40 * self.scale),
+                random.randint(40 * self.scale, self.user_y - 40 * self.scale),
+            )
+            self.coin_list.append(coin)
 
     def generate_spikes(self, score):
         east_spikes = []

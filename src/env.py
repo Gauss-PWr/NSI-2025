@@ -21,8 +21,6 @@ class GameEnv(gym.Env):
         self.max_coins = 1
         self.max_spikes = 9
 
-        obs_size = 15
-        # W env.py
         self.observation_space = spaces.Box(
             low=np.array(
                 [0, 0, -1, -20] + [-1, -1] + [-1] * self.max_spikes, dtype=np.float32

@@ -17,11 +17,14 @@ class GameEnv(gym.Env):
         self.max_spikes = 9 
         
         obs_size = 15 
-        
-        low = np.full((obs_size,), -float('inf'), dtype=np.float32)
-        high = np.full((obs_size,), float('inf'), dtype=np.float32)
-        
-        self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
+        # W env.py
+        self.observation_space = spaces.Box(
+            low=np.array([0, 0, -1, -20] + [-1, -1] + [-1]*self.max_spikes, dtype=np.float32),
+            high=np.array([self.game.user_x, self.game.user_y, 1, 20] + 
+                        [self.game.user_x, self.game.user_y] + [self.game.user_y]*self.max_spikes, 
+                        dtype=np.float32),
+            dtype=np.float32
+        )
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -62,11 +65,9 @@ class GameEnv(gym.Env):
             target_spikes = self.game.east_spikes
         else:
             target_spikes = self.game.west_spikes
-        
         spike_data = []
         for spike in target_spikes:
             spike_data.append(float(spike.rect.y))
-            
         if len(spike_data) > self.max_spikes:
             spike_data = spike_data[:self.max_spikes]
         else:

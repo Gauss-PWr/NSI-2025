@@ -68,12 +68,6 @@ class GameEngine:
             "west": West_Wall_Spike,
         }
 
-        try:
-            with open("data/high_score.txt", "r") as file:
-                self.high_score = int(file.read().strip() or 0)
-        except:
-            self.high_score = 0
-
         self.coin_total = 0
 
         try:
@@ -218,7 +212,7 @@ class GameEngine:
             "spikes_pos_y": [
                 s.rect.y
                 for s in (
-                    self.east_spikes if self.player.gravity > 0 else self.west_spikes
+                    self.east_spikes if self.player.velocity < 0 else self.west_spikes
                 )
             ],
             "coin_x": self.coin_list[0].rect.x if self.coin_list else -1,

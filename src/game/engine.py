@@ -154,7 +154,7 @@ class GameEngine:
 
     def step(self, action):
         if self.game_over:
-            return self.get_state_dict(), 0, True, {}
+            return self.get_state_dict(), True, {}
 
         if action == 1:
             self.player.jump()

@@ -297,7 +297,7 @@ def calculate_reward(game_state: Dict[str, Any]) -> float:
 
 ### B. Bot z Uproszczonym Q-Learningiem (Epsilon-Greedy)
 
-**Ostrzeżenie:** Używa słownika jako Q-tabeli i zgrubnego podziału planszy (co 50px). Nie będzie działał dobrze bez długiego treningu. Wprowadza strategię $\epsilon$-greedy ($\epsilon=0.1$) i minimalistyczną funkcję `learn`.
+Używa słownika jako Q-tabeli i strategii $\epsilon$-greedy.
 
 ```python
 from base_bot import BaseBot

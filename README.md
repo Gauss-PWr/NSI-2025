@@ -17,7 +17,7 @@ Uczestnicy muszą stworzyć plik `solution.py` zawierający:
 - Funkcję `calculate_reward(game_state: dict) -> float` - obowiązkowa przy implementacjia RL
 
 
-**Plik w zipie prześlicie na mail: gauss@pwr.edu.pl.**
+**Pliki w zipie prześlicie na mail: gauss@pwr.edu.pl.**
 
 W razie pytań zapraszamy na [discord hackathonu](https://discord.gg/XmfHAPgr).
 

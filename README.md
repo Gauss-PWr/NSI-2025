@@ -285,23 +285,6 @@ def create_bot() -> BaseBot:
     Fabryka dla bota.
     """
     return SimpleHeuristicBot() 
-
-# --- Implementacja Nagrody (Wymagana dla RL, opcjonalna dla heurystyki, ale musi istnieć) ---
-
-def calculate_reward(game_state: Dict[str, Any]) -> float:
-    """
-    Funkcja nagrody (Reward Function).
-    """
-    reward = 0.0
-
-    # 1. Nagroda za przetrwanie (za każdy krok)
-    reward += 0.1 
-
-    # 2. Kara za śmierć
-    if game_state["player_dead"]:
-        reward -= 10.0
-    
-    return reward
 ```
 
 ### B. Bot z Uproszczonym Q-Learningiem (Epsilon-Greedy)
@@ -455,6 +438,6 @@ def train_bot(episodes: int = 500):
     env.close()
 
 # Poniższe wywołanie w main.py pozwoli na trening bota
-# if __name__ == "__main__":
-#     train_bot(episodes=5000)
+ if __name__ == "__main__":
+     train_bot(episodes=5000)
 ```

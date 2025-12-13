@@ -346,6 +346,38 @@ def create_bot() -> BaseBot:
 
 def calculate_reward(game_state: Dict[str, Any]) -> float:
     return -10.0 if game_state["player_dead"] else 0.1
+
+def train_q_bot(episodes: int = 500, bot_instance=None):
+    """Przykładowa pętla treningowa dla Q-Learningu."""
+    bot = bot_instance if bot_instance else create_bot()
+    env = GameEnv(calculate_reward=calculate_reward, render_mode="headless") 
+
+    print(f"Starting Q-Learning training over {episodes} episodes...")
+    for i in range(episodes):
+        obs, _ = env.reset()
+        done = False
+        episode_score = 0
+        
+        # Upewniamy się, że bot ma czystą historię
+        bot.last_state = None 
+        bot.last_action = None
+        
+        while not done:
+            action = bot.take_action(obs)
+            next_obs, reward, done, _, info = env.step(action)
+            
+            # Krok uczenia
+            bot.learn(next_obs, reward, done) 
+            
+            obs = next_obs
+            if done:
+                episode_score = env.game.score
+
+        if (i + 1) % 50 == 0:
+             print(f"Episode {i+1}/{episodes}, Final Score: {episode_score}")
+    
+    env.close()
+    print("Training complete.")
  ```
 
 ### C. Bot typu REINFORCE (Policy Gradient - PyTorch)

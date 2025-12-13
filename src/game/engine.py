@@ -204,7 +204,7 @@ class GameEngine:
             "spikes_pos_y": [
                 s.rect.y
                 for s in (
-                    self.east_spikes if self.player.velocity < 0 else self.west_spikes
+                    self.east_spikes if self.player.velocity > 0 else self.west_spikes
                 )
             ],
             "coin_x": self.coin_list[0].rect.x if self.coin_list else -1,

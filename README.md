@@ -2,7 +2,7 @@
 
 Celem hackathonu jest stworzenie bota do gry ***watch out for pointy things***. Gracz porusza się między lewą i prawą ścianą, unikając kolców i zbierając monety. Bot musi podejmować decyzje o skoku w odpowiednich momentach, aby przetrwać jak najdłużej.
 
-### Wymagany plik: `solution.py`
+### Wymagany plik: `solution.py` i opcjonalnie `model.*`
 
 Uczestnicy muszą stworzyć plik `solution.py` zawierający:
 
@@ -15,6 +15,12 @@ Uczestnicy muszą stworzyć plik `solution.py` zawierający:
 - `BENCHMARK_EPISODES: int` - liczba epizodów benchmarku (domyślnie: 50)
 - `WATCH_GAME: bool` - czy pokazać wizualizację gry (domyślnie: True)
 - Funkcję `calculate_reward(game_state: dict) -> float` - obowiązkowa przy implementacjia RL
+
+
+**Plik w zipie prześlicie na mail: gauss@pwr.edu.pl.**
+
+W razie pytań zapraszamy na [discord hackathonu](https://discord.gg/XmfHAPgr).
+
 
 ---
 
@@ -223,10 +229,13 @@ Wszyskie potrzebne paczki są zawarte w `requirements.txt`. Upewnij się, że ma
 
 ## 6. METRYKI OCENY
 Wydajność modelu jest zadana następująco:
-$$\text{performance}_i = collected\_coins_i + score_i$$
+
+$$\text{performance}_i = \text{collected coins}_i + \text{score}_i$$
 $$\text{performance} = \frac{1}{N}\sum_{i=1}^{N} \text{performance}_i$$
 
 gdzie $N$ to liczba epizodów w benchmarku, $collected\_coins_i$ to liczba monet zebranych w epizodzie $i$, a $score_i$ to liczba odbić od ściany w epizodzie $i$. Dla każdej implementacji i-ty epizod bedzie używał tego samego ziarna losowego.
+
+**UWAGA!** skuteczność bota oceniamy do czasu aż wykona **500** odbić. Sam bot powinien myśleć nie dłużej niż **1 sekundę** przed wykonaniem akcji. Celowe użycie `sleep` lub spowolnienie bota innymi metodami skutkuje dyskwalifikacją.
 
 ---
 

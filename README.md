@@ -192,7 +192,7 @@ Słownik przekazywany do funkcji `calculate_reward()` zawierający pełne inform
 
 | Obiekt | Maksymalna liczba | Zasady generacji |
 |--------|-------------------|------------------|
-| Monety | $1$ | 30% szans co iterację gdy brak monety |
+| Monety | $1$ | gdy brak monety generuje monetę po odbiciu |
 | Kolce na ścianie | $9$ | $2 + \lfloor score / 5 \rfloor$, max 9 |
 | Kolce podłoga/sufit | Pełne pokrycie | Statyczne przez całą grę |
 

@@ -24,8 +24,14 @@ class MockMixer:
 
 
 class GameEngine:
-    def __init__(self, headless=False):
+    def __init__(self, headless=False, seed: int | None = None):
         self.headless = headless
+
+        # Lokalny RNG (deterministyczny, niezależny od globalnego random)
+        self._seed = None
+        self._rng = random.Random()
+        self.set_seed(seed)
+
         if self.headless:
             os.environ["SDL_VIDEODRIVER"] = "dummy"
             sys.modules["pygame.mixer"] = MockMixer()
@@ -81,6 +87,15 @@ class GameEngine:
         self.score = 0
         self.game_over = False
 
+    def set_seed(self, seed: int | None):
+        """Ustawia seed dla losowości używanej w silniku."""
+        self._seed = seed
+        if seed is None:
+            # "losowo" (zależne od systemowego entropii)
+            self._rng = random.Random()
+        else:
+            self._rng = random.Random(int(seed))
+
     def draw_text(self, text, size, x, y):
         if self.headless:
             return
@@ -91,12 +106,13 @@ class GameEngine:
 
     def generate_coins(self):
         if len(self.coin_list) < 1:
-            coin = self.Coin(self.scale)
-            coin.set_position(
-                random.randint(40 * self.scale, self.user_x - 40 * self.scale),
-                random.randint(40 * self.scale, self.user_y - 40 * self.scale),
-            )
-            self.coin_list.append(coin)
+            if self._rng.randint(0, 100) < 30:
+                coin = self.Coin(self.scale)
+                coin.set_position(
+                    self._rng.randint(40 * self.scale, self.user_x - 40 * self.scale),
+                    self._rng.randint(40 * self.scale, self.user_y - 40 * self.scale),
+                )
+                self.coin_list.append(coin)
 
     def generate_spikes(self, score):
         east_spikes = []
@@ -109,7 +125,7 @@ class GameEngine:
         current_wall = "east" if self.player.rect.x > self.user_x // 2 else "west"
 
         available_slots = list(range(1, 12))
-        random.shuffle(available_slots)
+        self._rng.shuffle(available_slots)
 
         for i in range(number_of_spikes):
             if not available_slots:
@@ -129,7 +145,11 @@ class GameEngine:
 
         return east_spikes, west_spikes
 
-    def reset_game(self):
+    def reset_game(self, seed: int | None = None):
+        # Opcjonalnie: reseed na start epizodu
+        if seed is not None:
+            self.set_seed(seed)
+
         self.player = self.Player(self.scale, self.user_x, self.user_y)
 
         self.floor_spikes = [

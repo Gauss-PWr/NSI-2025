@@ -9,8 +9,7 @@ __pycache__/
 # You aint looking at my solutions ;)
 solution.py
 bot.zip
-ppo_spike_bot_v2.zip
-
+submissions/
 # Distribution / packaging
 .Python
 build/

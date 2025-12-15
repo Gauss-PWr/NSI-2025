@@ -7,7 +7,7 @@ from src.game.engine import GameEngine
 class GameEnv(gym.Env):
     metadata = {"render_modes": ["human", "headless"]}
 
-    def __init__(self, calculate_reward=None, render_mode="headless"):
+    def __init__(self, calculate_reward=None, render_mode="headless", game_seed=None):
         super(GameEnv, self).__init__()
         self.headless = render_mode == "headless"
         self.calculate_reward = (
@@ -15,6 +15,7 @@ class GameEnv(gym.Env):
         )
         self.game = GameEngine(
             headless=self.headless,
+            seed=game_seed,
         )
         self.action_space = spaces.Discrete(2)
 

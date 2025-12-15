@@ -9,4 +9,5 @@ dependencies = [
     "numpy>=2.3.5",
     "pygame>=2.6.1",
     "stable-baselines3>=2.7.1",
+    "tqdm>=4.67.1",
 ]
